@@ -1,0 +1,61 @@
+/* Additional custom styles for CV formatting */
+@media screen and (max-width: 1024px) {
+    .cv-container {
+        transform: scale(0.5);
+        transform-origin: top left;
+        width: 210mm !important;
+        height: 297mm !important;
+    }
+}
+
+/* Ensure proper print rendering */
+@media print {
+    body {
+        background: white !important;
+    }
+    
+    .cv-container {
+        width: 100% !important;
+        height: auto !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        page-break-after: always;
+    }
+}
+
+/* Smooth scrolling for the preview container */
+#cvPreviewContainer {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+#cvPreviewContainer::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#cvPreviewContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#cvPreviewContainer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#cvPreviewContainer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Animation for AI generation button */
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.ai-generating {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
