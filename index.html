@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProEngineer CV Generator - Create Stunning Engineering Resumes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .cv-container {
+            background: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Electrician Template - Bold & Practical */
+        .template-electrician {
+            --primary: #f59e0b;
+            --secondary: #1f2937;
+            --accent: #fbbf24;
+        }
+        .template-electrician .cv-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        .template-electrician .cv-sidebar {
+            background: #1f2937;
+            color: white;
+        }
+        
+        /* Electrical Engineer Template - Technical & Modern */
+        .template-electrical {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #60a5fa;
+        }
+        .template-electrical .cv-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border-bottom: 4px solid #60a5fa;
+        }
+        
+        /* Industrial Engineer Template - Professional & Structured */
+        .template-industrial {
+            --primary: #0891b2;
+            --secondary: #0e7490;
+            --accent: #22d3ee;
+        }
+        .template-industrial .cv-header {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            color: white;
+            border-left: 8px solid #f97316;
+        }
+        
+        /* Combined Template - Versatile & Dynamic */
+        .template-combined {
+            --primary: #7c3aed;
+            --secondary: #5b21b6;
+            --accent: #a78bfa;
+        }
+        .template-combined .cv-header {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #db2777 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .template-combined .cv-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+        
+        .input-group {
+            transition: all 0.3s ease;
+        }
+        .input-group:hover {
+            transform: translateX(4px);
+        }
+        
+        .skill-tag {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .preview-sticky {
+            position: sticky;
+            top: 20px;
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .cv-container { box-shadow: none; margin: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .cv-container {
+                width: 100%;
+                min-height: auto;
+            }
+        }
+        
+        .loading-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="text-white py-8 px-4 mb-8">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="zap" class="w-10 h-10 text-yellow-300"></i>
+                <div>
+                    <h1 class="text-3xl font-bold font-['Playfair_Display']">ProEngineer CV</h1>
+                    <p class="text-blue-100 text-sm mt-1">AI-Powered Resume Generator for Engineers</p>
+                </div>
+            </div>
+            <button onclick="generatePDF()" class="bg-white text-purple-700 px-6 py-3 rounded-full font-semibold hover:bg-purple-50 transition shadow-lg flex items-center gap-2 no-print">
+                <i data-lucide="download"></i>
+                Download PDF
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 pb-12">
+        <div class="grid lg:grid-cols-12 gap-8">
+            
+            <!-- Form Section -->
+            <div class="lg:col-span-5 space-y-6 no-print">
+                
+                <!-- Profession Selection -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-purple-700">
+                        <i data-lucide="briefcase" class="w-5 h-5"></i>
+                        Select Profession
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setProfession('electrician')" id="btn-electrician" class="prof-btn p-4 rounded-xl border-2 border-amber-500 bg-amber-50 hover:bg-amber-100 transition text-left">
+                            <i data-lucide="plug" class="w-6 h-6 text-amber-600 mb-2"></i>
+                            <div class="font-semibold text-amber-900">Electrician</div>
+                            <div class="text-xs text-amber-700">Installation & Maintenance</div>
+                        </button>
+                        <button onclick="setProfession('electrical')" id="btn-electrical" class="prof-btn p-4 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-blue-50 transition text-left">
+                            <i data-lucide="cpu" class="w-6 h-6 text-blue-600 mb-2"></i>
+                            <div class="font-semibold text-gray-900">Electrical Engineer</div>
+                            <div class="text-xs text-gray-600">Control & Computer</div>
+                        </button>
+                        <button onclick="setProfession('industrial')" id="btn-industrial" class="prof-btn p-4 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-cyan-50 transition text-left">
+                            <i data-lucide="factory" class="w-6 h-6 text-cyan-600 mb-2"></i>
+                            <div class="font-semibold text-gray-900">Industrial Engineer</div>
+                            <div class="text-xs text-gray-600">Process Optimization</div>
+                        </button>
+                        <button onclick="setProfession('combined')" id="btn-combined" class="prof-btn p-4 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-purple-50 transition text-left">
+                            <i data-lucide="layers" class="w-6 h-6 text-purple-600 mb-2"></i>
+                            <div class="font-semibold text-gray-900">Combined</div>
+                            <div class="text-xs text-gray-600">All Three Fields</div>
+                        </button>
+                    </div>
+                    
+                    <!-- Custom Job Title -->
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom Job Title</label>
+                        <input type="text" id="customTitle" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-sm" placeholder="e.g., Experienced Electrician, Senior Engineer..." oninput="updateCV()">
+                        <p class="text-xs text-gray-500 mt-1">Leave empty to use default title</p>
+                    </div>
+                </div>
+
+                <!-- Theme Selection -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-purple-700">
+                        <i data-lucide="palette" class="w-5 h-5"></i>
+                        Choose Theme
+                    </h2>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="setTheme('classic')" id="theme-classic" class="theme-btn p-3 rounded-xl border-2 border-blue-500 bg-blue-50 hover:scale-105 transition text-center">
+                            <div class="w-full h-8 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 mb-2"></div>
+                            <div class="font-semibold text-sm text-blue-900">Classic</div>
+                        </button>
+                        <button onclick="setTheme('forest')" id="theme-forest" class="theme-btn p-3 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-green-50 hover:scale-105 transition text-center">
+                            <div class="w-full h-8 rounded-lg bg-gradient-to-r from-emerald-600 to-green-800 mb-2"></div>
+                            <div class="font-semibold text-sm text-gray-900">Forest</div>
+                        </button>
+                        <button onclick="setTheme('burgundy')" id="theme-burgundy" class="theme-btn p-3 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-red-50 hover:scale-105 transition text-center">
+                            <div class="w-full h-8 rounded-lg bg-gradient-to-r from-red-700 to-pink-900 mb-2"></div>
+                            <div class="font-semibold text-sm text-gray-900">Burgundy</div>
+                        </button>
+                        <button onclick="setTheme('navy')" id="theme-navy" class="theme-btn p-3 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-slate-100 hover:scale-105 transition text-center">
+                            <div class="w-full h-8 rounded-lg bg-gradient-to-r from-slate-700 to-slate-900 mb-2"></div>
+                            <div class="font-semibold text-sm text-gray-900">Navy</div>
+                        </button>
+                        <button onclick="setTheme('sunset')" id="theme-sunset" class="theme-btn p-3 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-orange-50 hover:scale-105 transition text-center">
+                            <div class="w-full h-8 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 mb-2"></div>
+                            <div class="font-semibold text-sm text-gray-900">Sunset</div>
+                        </button>
+                        <button onclick="setTheme('ocean')" id="theme-ocean" class="theme-btn p-3 rounded-xl border-2 border-transparent bg-gray-50 hover:bg-cyan-50 hover:scale-105 transition text-center">
+                            <div class="w-full h-8 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 mb-2"></div>
+                            <div class="font-semibold text-sm text-gray-900">Ocean</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-purple-700">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                        Personal Information
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="fullName" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition" placeholder="John Doe" oninput="updateCV()">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="input-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
+                                <input type="date" id="birthday" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" oninput="updateCV()">
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
+                                <input type="number" id="gradYear" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="2020" min="1980" max="2030" oninput="updateCV()">
+                            </div>
+                        </div>
+                        
+                        <!-- Age Display Options -->
+                        <div class="pt-3 border-t border-gray-200 mt-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Age Display Options</label>
+                            <div class="flex items-center gap-4 mb-3">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="showAge" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500" checked onchange="updateCV()">
+                                    <span class="text-sm text-gray-700">Show Age in CV</span>
+                                </label>
+                            </div>
+                            <div id="ageStyleOptions" class="flex flex-wrap gap-2">
+                                <button onclick="setAgeStyle('text')" id="ageStyle-text" class="age-style-btn px-3 py-1 rounded-lg text-sm border-2 border-purple-500 bg-purple-50 transition">
+                                    Text Only
+                                </button>
+                                <button onclick="setAgeStyle('icon')" id="ageStyle-icon" class="age-style-btn px-3 py-1 rounded-lg text-sm border-2 border-transparent bg-gray-100 hover:bg-gray-200 transition">
+                                    With Icon
+                                </button>
+                                <button onclick="setAgeStyle('badge')" id="ageStyle-badge" class="age-style-btn px-3 py-1 rounded-lg text-sm border-2 border-transparent bg-gray-100 hover:bg-gray-200 transition">
+                                    Badge Style
+                                </button>
+                                <button onclick="setAgeStyle('sidebar')" id="ageStyle-sidebar" class="age-style-btn px-3 py-1 rounded-lg text-sm border-2 border-transparent bg-gray-100 hover:bg-gray-200 transition">
+                                    Sidebar Only
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Graduation Year Display Options -->
+                        <div class="pt-3 border-t border-gray-200 mt-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Graduation Display Style</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="setGradStyle('year')" id="gradStyle-year" class="grad-style-btn px-3 py-1 rounded-lg text-sm border-2 border-purple-500 bg-purple-50 transition">
+                                    Year Only
+                                </button>
+                                <button onclick="setGradStyle('class-of')" id="gradStyle-class-of" class="grad-style-btn px-3 py-1 rounded-lg text-sm border-2 border-transparent bg-gray-100 hover:bg-gray-200 transition">
+                                    Class of 2020
+                                </button>
+                                <button onclick="setGradStyle('since')" id="gradStyle-since" class="grad-style-btn px-3 py-1 rounded-lg text-sm border-2 border-transparent bg-gray-100 hover:bg-gray-200 transition">
+                                    Since 2020
+                                </button>
+                                <button onclick="setGradStyle('none')" id="gradStyle-none" class="grad-style-btn px-3 py-1 rounded-lg text-sm border-2 border-transparent bg-gray-100 hover:bg-gray-200 transition">
+                                    Hide Year
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="input-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <input type="tel" id="phone" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="+1 234 567 890" oninput="updateCV()">
+                            </div>
+                            <div class="input-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="john@example.com" oninput="updateCV()">
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
+                            <div class="flex items-center gap-4">
+                                <div class="relative w-20 h-20 rounded-full bg-gray-200 overflow-hidden border-4 border-white shadow-lg">
+                                    <img id="photoPreview" class="w-full h-full object-cover hidden">
+                                    <div id="photoPlaceholder" class="w-full h-full flex items-center justify-center text-gray-400">
+                                        <i data-lucide="camera" class="w-6 h-6"></i>
+                                    </div>
+                                </div>
+                                <label class="flex-1 cursor-pointer bg-white px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition text-center text-sm text-gray-600">
+                                    <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="handlePhotoUpload(event)">
+                                    Choose Photo
+                                </label>
+                                <button onclick="removePhoto()" class="text-red-500 hover:text-red-700 p-2" title="Remove photo">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Summary -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2 text-purple-700">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            Professional Summary
+                        </h2>
+                        <button onclick="generateAISummary()" class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition flex items-center gap-1">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            AI Generate
+                        </button>
+                    </div>
+                    <textarea id="summary" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none resize-none" placeholder="A brief professional summary will appear here..." oninput="updateCV()"></textarea>
+                    <p class="text-xs text-gray-500 mt-2 italic">💡 Tip: Click "AI Generate" to create a summary based on your profile!</p>
+                </div>
+
+                <!-- Education & Courses -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2 text-purple-700">
+                            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                            Education & Courses
+                        </h2>
+                        <button onclick="addCourse()" class="bg-purple-600 text-white w-8 h-8 rounded-full hover:bg-purple-700 transition flex items-center justify-center">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div id="coursesList" class="space-y-3">
+                        <!-- Dynamic courses will appear here -->
+                    </div>
+                    <div id="emptyCourses" class="text-center py-4 text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+                        No courses added yet. Click + to add.
+                    </div>
+                </div>
+
+                <!-- Work Experience -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2 text-purple-700">
+                            <i data-lucide="wrench" class="w-5 h-5"></i>
+                            Work Experience
+                        </h2>
+                        <button onclick="addExperience()" class="bg-purple-600 text-white w-8 h-8 rounded-full hover:bg-purple-700 transition flex items-center justify-center">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div id="experienceList" class="space-y-3">
+                        <!-- Dynamic experience will appear here -->
+                    </div>
+                    <div id="emptyExperience" class="text-center py-4 text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+                        No experience added yet. Click + to add.
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-purple-700">
+                        <i data-lucide="star" class="w-5 h-5"></i>
+                        Skills
+                    </h2>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="skillInput" class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Add a skill (e.g., PLC Programming)" onkeypress="handleSkillKeypress(event)">
+                        <button onclick="addSkill()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div id="skillsList" class="flex flex-wrap gap-2">
+                        <!-- Skills tags will appear here -->
+                    </div>
+                    <div class="mt-3 flex gap-2 flex-wrap text-xs">
+                        <span class="text-gray-500">Suggestions:</span>
+                        <button onclick="quickAddSkill('Electrical Installation')" class="text-purple-600 hover:underline">Electrical Installation</button>
+                        <button onclick="quickAddSkill('AutoCAD')" class="text-purple-600 hover:underline">AutoCAD</button>
+                        <button onclick="quickAddSkill('PLC Programming')" class="text-purple-600 hover:underline">PLC</button>
+                        <button onclick="quickAddSkill('Project Management')" class="text-purple-600 hover:underline">Management</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Preview Section -->
+            <div class="lg:col-span-7">
+                <div class="preview-sticky">
+                    <div class="glass-panel rounded-2xl p-4 shadow-2xl mb-4 flex items-center justify-between no-print">
+                        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                            <i data-lucide="eye" class="w-5 h-5"></i>
+                            Live Preview
+                        </h3>
+                        <div class="flex gap-2">
+                            <button onclick="zoomOut()" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                                <i data-lucide="zoom-out" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="zoomIn()" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                                <i data-lucide="zoom-in" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="toggleFullScreen()" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                                <i data-lucide="maximize-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="cvPreviewContainer" class="overflow-auto bg-gray-100 rounded-2xl p-4" style="max-height: 85vh;">
+                        <div id="cvContent" class="cv-container template-electrician bg-white text-gray-800">
+                            <!-- CV Template will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+	<script src="./generator.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+<script src="https://deepsite.hf.co/deepsite-badge.js"></script>
+</body>
+</html>
